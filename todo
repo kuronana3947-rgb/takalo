@@ -1,0 +1,30 @@
+base:mysql
+
+Tables
+    -users (idUser,email,password,isAdmin)
+    -categories (idCategorie, categorie, img)
+    -objets (idObjet, titre, description, prix, idCategorie, isValidate, idProprietaire)
+    -photos (idPhoto, idObjet, img)
+    -notifications (idNotification, idSender, idRecever, isRead)
+    -echanges (idEchange, idSender, idRecever, idObjetSender,idObjetRecever, date, isValidate)
+    
+Modeles
+    -users
+    -categories
+    -objets
+    -notifications
+
+fonctionnalites
+    -admin
+        -login
+        -gestion categorie
+        -valider objet
+
+    -user
+        -login
+        -gestion objet
+            supprimer
+            modifier
+            ajouter
+        -chercher compte
+        -gestion de demande (accepter ou refuser)

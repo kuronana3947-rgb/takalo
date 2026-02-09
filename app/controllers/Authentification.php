@@ -1,0 +1,64 @@
+<?php
+
+namespace app\controllers;
+
+use flight\Engine;
+use app\models\Users;
+use Flight;
+
+class Authentification {
+
+	protected Engine $app;
+
+	public function __construct($app) {
+		$this->app = $app;
+	}
+
+	public function getUsers() {
+		// You could actually pull data from the database if you had one set up
+		// $users = $this->app->db()->fetchAll("SELECT * FROM users");
+		$userModel = new UserModels() ;
+		$users = $userModel->getUsers();
+
+		// You actually could overwrite the json() method if you just wanted to
+		// to ->json($users); and it would auto set pretty print for you.
+		// https://flightphp.com/learn#overriding
+		$this->app->json($users, 200, true, 'utf-8', JSON_PRETTY_PRINT);
+	}
+
+	public function getUser($id) {
+		// You could actually pull data from the database if you had one set up
+		// $user = $this->app->db()->fetchRow("SELECT * FROM users WHERE id = ?", [ $id ]);
+		$userModel = new UserModels() ;
+		$users = $userModel->getUsers();
+		
+		$users_filtered = array_filter($users, function($data) use ($id) {
+			return $data['id'] === (int) $id;
+		});
+		if($users_filtered) {
+			$user = array_pop($users_filtered);
+		}
+		$this->app->json($user, 200, true, 'utf-8', JSON_PRETTY_PRINT);
+	}
+
+	public function updateUser($id) {
+		// You could actually update data from the database if you had one set up
+		// $statement = $this->app->db()->runQuery("UPDATE users SET email = ? WHERE id = ?", [ $this->app->data['email'], $id ]);
+		$this->app->json([ 'success' => true, 'id' => $id ], 200, true, 'utf-8', JSON_PRETTY_PRINT);
+	}
+
+    public static function urlPage($namePage, $data) {
+        $User = new Users(Flight::db());
+        Flight::render('model', [
+            'namePage' => $namePage,
+            'data' => $data,
+            'userMM' => $User->getSessionUser()
+        ]);
+    }
+    public function chekLog() {
+        $users = new Users(Flight::db());
+        $email = Flight::request()->data->email ?? null;
+		$password = Flight::request()->data->password ?? null;
+        $users->check($email, $password);
+    }
+}
