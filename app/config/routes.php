@@ -18,6 +18,37 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('login');
 	});
 
+	// Routes d'authentification
+	$router->get('/login', function() use ($app) {
+		$authController = new Authentification($app);
+		$authController->showLogin();
+	});
+
+	$router->post('/login', function() use ($app) {
+		$authController = new Authentification($app);
+		$authController->login();
+	});
+
+	$router->get('/register', function() use ($app) {
+		$authController = new Authentification($app);
+		$authController->showRegister();
+	});
+
+	$router->post('/register', function() use ($app) {
+		$authController = new Authentification($app);
+		$authController->register();
+	});
+
+	$router->get('/logout', function() use ($app) {
+		$authController = new Authentification($app);
+		$authController->logout();
+	});
+
+	$router->get('/api/check-email', function() use ($app) {
+		$authController = new Authentification($app);
+		$authController->checkEmailAvailability();
+	});
+
 	$router->get('/route-iray', function() use ($app) {
 		echo '<h1>route iray ve!</h1>';
 	});
@@ -32,9 +63,10 @@ $router->group('', function(Router $router) use ($app) {
 		$router->post('/users/@id:[0-9]', [ ApiExampleController::class, 'updateUser' ]);
 	});
 
+	// Route legacy pour compatibilité
 	$router->post('/log', function() use ($app) {
 		$authController = new Authentification($app);
-		$authController->chekLog();
+		$authController->login();
 	});
 	
 }, [ SecurityHeadersMiddleware::class ]);

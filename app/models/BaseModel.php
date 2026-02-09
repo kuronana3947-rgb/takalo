@@ -2,14 +2,16 @@
 
 namespace app\models;
 
-use Flight;
-use flight\database\PdoWrapper;
 use PDO;
 
-class Categories
+/**
+ * Classe de base abstraite pour tous les modèles DAO
+ * Fournit des méthodes communes pour interagir avec la base de données
+ */
+abstract class BaseModel
 {
-    protected $table = 'categories';
-    protected $pk = 'idCategorie';
+    protected $table;
+    protected $pk;
     protected $db;
 
     public function __construct($db)
@@ -17,7 +19,10 @@ class Categories
         $this->db = $db;
     }
 
-    public function getAll(int $limit = 0, int $offset = 0)
+    /**
+     * Récupérer tous les enregistrements
+     */
+    public function getAll(int $limit = 0, int $offset = 0): array
     {
         $sql = "SELECT * FROM {$this->table}";
         if ($limit > 0) {
@@ -28,7 +33,10 @@ class Categories
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getById($id)
+    /**
+     * Récupérer un enregistrement par ID
+     */
+    public function getById($id): array
     {
         $sql = "SELECT * FROM {$this->table} WHERE {$this->pk} = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
@@ -36,7 +44,10 @@ class Categories
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
     }
 
-    public function createCategory(array $data)
+    /**
+     * Créer un nouvel enregistrement
+     */
+    public function create(array $data): string
     {
         $cols = array_keys($data);
         $placeholders = array_fill(0, count($cols), '?');
@@ -46,7 +57,10 @@ class Categories
         return $this->db->lastInsertId();
     }
 
-    public function updateCategory($id, array $data)
+    /**
+     * Mettre à jour un enregistrement
+     */
+    public function update($id, array $data): int
     {
         $cols = array_keys($data);
         $sets = array_map(function ($c) { return "{$c} = ?"; }, $cols);
@@ -57,11 +71,37 @@ class Categories
         return $stmt->rowCount();
     }
 
-    public function deleteCategory($id)
+    /**
+     * Supprimer un enregistrement
+     */
+    public function delete($id): int
     {
         $sql = "DELETE FROM {$this->table} WHERE {$this->pk} = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
         return $stmt->rowCount();
+    }
+
+    /**
+     * Compter les enregistrements
+     */
+    public function count(): int
+    {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$result['total'];
+    }
+
+    /**
+     * Vérifier si un enregistrement existe
+     */
+    public function exists($id): bool
+    {
+        $sql = "SELECT 1 FROM {$this->table} WHERE {$this->pk} = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch() !== false;
     }
 }
