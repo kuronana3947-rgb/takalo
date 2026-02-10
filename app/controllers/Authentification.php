@@ -4,6 +4,11 @@ namespace app\controllers;
 
 use flight\Engine;
 use app\models\Users;
+use app\models\Categories;
+use app\models\Notifications;
+use app\models\Objets;
+use app\models\Echanges;
+use app\models\Photos;
 use Flight;
 
 class Authentification {
@@ -49,10 +54,25 @@ class Authentification {
 
     public static function urlPage($namePage, $data) {
         $User = new Users(Flight::db());
+        $sessionUser = $User->getSessionUser();
+
+        // Charger les notifications de l'utilisateur connecté
+        $notifications = [];
+        if ($sessionUser) {
+            $notifModel = new Notifications(Flight::db());
+            $notifications = $notifModel->getAllForUser($sessionUser['idUser']);
+        }
+
+        // Charger toutes les catégories (pour le modal d'ajout d'objet)
+        $catModel = new Categories(Flight::db());
+        $allCategories = $catModel->getAll();
+
         Flight::render('model', [
             'namePage' => $namePage,
             'data' => $data,
-            'user' => $User->getSessionUser()
+            'user' => $sessionUser,
+            'notifications' => $notifications,
+            'allCategories' => $allCategories
         ]);
     }
 
