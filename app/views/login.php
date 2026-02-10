@@ -15,13 +15,13 @@
             <form id="loginForm" action="/log" method="post" novalidate>
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" value="admin@troc.com" id="email" name="email" placeholder="votre@email.com" required>
+                    <input type="email" value="admin@gmail.com" id="email" name="email" placeholder="votre@email.com" required>
                     <span class="error-message" id="emailError"></span>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
-                    <input type="password" value="hashed_admin_pwd" id="password" name="password" placeholder="Votre mot de passe" required>
+                    <input type="password" value="0 " id="password" name="password" placeholder="Votre mot de passe" required>
                     <span class="error-message" id="passwordError"></span>
                 </div>
                 

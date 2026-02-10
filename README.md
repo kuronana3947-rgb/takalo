@@ -1,110 +1,174 @@
-# Flight PHP Skeleton App
+# Takalo
 
-Use this skeleton application to quickly setup and start working on a new Flight PHP application. This application uses the latest version of Flight PHP v3.
+Plateforme web d'échange d'objets entre utilisateurs.
 
-This skeleton is designed to be AI-friendly out of the box, with predefined instructions files for popular AI coding assistants such as GitHub Copilot, Cursor, and Windsurf. This helps streamline development and ensures your project is ready for modern, AI-assisted workflows.
+## Technologies
 
-This skeleton application was built for Composer. You also could download a zip of this repo, downloading a zip of the [flightphp/core](https://github.com/flightphp/core) repo, and manually autoload the files by running `require('flight/autoload.php')` in your `app/config/# FlightPHP Skeleton Project Instructions
+- PHP 8 / FlightPHP
+- MySQL / PDO
+- JavaScript (Vanilla)
+- CSS3
 
-This document provides guidelines and best practices for structuring and developing a project using the FlightPHP framework.
+## Entités
+
+### Users
+| Colonne  | Type         | Contrainte       |
+|----------|--------------|------------------|
+| idUser   | INT          | PRIMARY KEY, AUTO_INCREMENT |
+| email    | VARCHAR(255) | NOT NULL, UNIQUE |
+| mdp      | VARCHAR(255) | NOT NULL         |
+| isAdmin  | BOOLEAN      | DEFAULT FALSE    |
+
+### Categories
+| Colonne     | Type         | Contrainte       |
+|-------------|--------------|------------------|
+| idCategorie | INT          | PRIMARY KEY, AUTO_INCREMENT |
+| categorie   | VARCHAR(100) | NOT NULL         |
+| img         | VARCHAR(255) |                  |
+
+### Objets
+| Colonne        | Type          | Contrainte       |
+|----------------|---------------|------------------|
+| idObjet        | INT           | PRIMARY KEY, AUTO_INCREMENT |
+| titre          | VARCHAR(255)  | NOT NULL         |
+| descriptions   | TEXT          |                  |
+| prix           | DECIMAL(10,2) | NOT NULL         |
+| idCategorie    | INT           | FK → categories  |
+| isValidate     | BOOLEAN       | DEFAULT FALSE    |
+| idProprietaire | INT           | FK → users       |
+
+### Photos
+| Colonne  | Type         | Contrainte                  |
+|----------|--------------|-----------------------------|
+| idPhoto  | INT          | PRIMARY KEY, AUTO_INCREMENT |
+| idObjet  | INT          | FK → objets (ON DELETE CASCADE) |
+| img      | VARCHAR(255) | NOT NULL                    |
+
+### Notifications
+| Colonne        | Type    | Contrainte       |
+|----------------|---------|------------------|
+| idNotification | INT     | PRIMARY KEY, AUTO_INCREMENT |
+| idSender       | INT     | FK → users       |
+| idRecever      | INT     | FK → users       |
+| isRead         | BOOLEAN | DEFAULT FALSE    |
+
+### Echanges
+| Colonne        | Type     | Contrainte       |
+|----------------|----------|------------------|
+| idEchange      | INT      | PRIMARY KEY, AUTO_INCREMENT |
+| idSender       | INT      | FK → users       |
+| idRecever      | INT      | FK → users       |
+| idObjetSender  | INT      | FK → objets      |
+| idObjetRecever | INT      | FK → objets      |
+| date           | DATETIME | DEFAULT CURRENT_TIMESTAMP |
+| isValidate     | BOOLEAN  | DEFAULT FALSE    |
+
+## Fonctionnalités
+
+### Authentification
+- Inscription avec email et mot de passe
+- Connexion / Déconnexion
+- Vérification de disponibilité d'email en temps réel
+- Hashage des mots de passe (bcrypt)
+- Protection des routes par session
+
+### Gestion des objets
+- Ajout d'un objet avec titre, description, prix estimé et catégorie
+- Upload de plusieurs photos par objet
+- Affichage détaillé d'un objet avec galerie photos
+- Suppression d'un objet (propriétaire uniquement)
+
+### Catégories
+- Liste de toutes les catégories
+- Affichage des objets par catégorie
+
+### Échanges
+- Proposition d'échange depuis la page détail d'un objet
+- Sélection d'un de ses propres objets à proposer
+- Acceptation ou refus d'une proposition reçue
+- Historique des échanges validés
+
+### Notifications
+- Notification à la réception d'une proposition d'échange
+- Notification lors de l'acceptation ou du refus
+- Badge de compteur sur l'icône de notification
+
+### Profil
+- Affichage de ses propres objets
+- Consultation des objets d'un autre utilisateur
+
+### Dashboard (Admin)
+- Statistiques : nombre d'utilisateurs, objets, échanges, catégories
+- Liste des échanges récents
+
+## Structure du projet
+
+```
+app/
+├── config/
+│   ├── bootstrap.php
+│   ├── config.php
+│   ├── routes.php
+│   └── services.php
+├── controllers/
+│   └── Authentification.php
+├── middlewares/
+│   └── SecurityHeadersMiddleware.php
+├── models/
+│   ├── Users.php
+│   ├── Categories.php
+│   ├── Objets.php
+│   ├── Photos.php
+│   ├── Echanges.php
+│   └── Notifications.php
+└── views/
+    ├── model.php
+    ├── login.php
+    ├── register.php
+    ├── home.php
+    ├── categories.php
+    ├── categorie-objets.php
+    ├── echanges.php
+    ├── historique.php
+    ├── profil.php
+    ├── objet.php
+    └── user-objets.php
+db/
+└── 20260209-01-init.sql
+public/
+├── index.php
+├── css/
+│   └── app.css
+├── js/
+│   └── app.js
+└── images/
+    └── objets/
+```
 
 ## Installation
 
-Run this command from the directory in which you want to install your new Flight PHP application. (this will require PHP 7.4 or newer)
-
+1. Cloner le projet
 ```bash
-composer create-project flightphp/skeleton cool-project-name
+git clone https://github.com/votre-repo/takalo-1.git
+cd takalo-1
 ```
 
-Replace `cool-project-name` with the desired directory name for your new application.
-
-After you create the project, make sure you go to the `app/config/config.php` and `app/config/services.php` and uncomment the lines related to the database you want to use before you get started.
-
-> _Tip: This skeleton includes configuration files for AI coding assistants (Copilot, Cursor, Windsurf) to help you get the most out of AI-driven development tools from the start._
-
-### Robust Setup of the Application
-
-This skeleton will come with 2 versions of a starter application. The robust version is a fully structured application meant for projects that you anticipate will be a bigger size. This is setup with object oriented programming in mind so that it is easier to unit test and scale your project with multiple developers (or make it easier on yourself).
-
-The robust version adds an `app/` directory where everything has a basic structure. This is how this skeleton is configured by default.meant
-
-### Simple Setup of the Application
-
-This is basically a single file application. The only exception to this is the config file which is still in the `app/config/` directory. This is a good starting point for smaller projects or projects that you don't anticipate will grow much.
-
-To use the simple version, you'll need to move the `index-simple.php` file to the `public/` directory and rename it to `index.php`. You can delete any other controllers, views, or config files (except the `config.php` file of course).
-
-With the simple setup, there is two very import security steps to be aware of. 
-- **DO NOT SAVE SENSITIVE CREDENTIALS TO THE `index.php` FILE**. 
-- **DO NOT COMMIT ANY TYPE OF SENSITIVE CREDENTIALS TO YOUR REPOSITORY**.
-
-This is what the config file is for. If you need to save sensitive credentials, save them to the config file and then reference them in the `index.php` file.
-
-## Running the Application
-
-### No Dependency Setup
-
-To run the application in development, you can run these commands 
-
+2. Installer les dépendances
 ```bash
-cd cool-project-name
-composer start
+composer install
 ```
 
-After that, open `http://localhost:8000` in your browser.
-
-__Note: If you run into an error similar to this `Failed to listen on localhost:8000 (reason: Address already in use)` then you'll need to change the port that the application is running on. You can do this by editing the `composer.json` file and changing the port in the `scripts.start` key.__
-
-### Docker Setup
-
-You can [install Docker](https://docs.docker.com/engine/install/) and use `docker-compose` to run the app with `docker`, so you can run these commands:
+3. Créer la base de données
 ```bash
-cd cool-project-name
-docker-compose up -d
-# or if a newer version of docker
-docker compose up -d
+mysql -u root -p < db/20260209-01-init.sql
 ```
-After that, open `http://localhost:8000` in your browser.
 
-### Vagrant Setup
-You can [install Vagrant](https://vagrantup.com/download) and a provider like [VirtualBox](https://www.virtualbox.org/wiki/Downloads) and use simple run the following command to bring up an environment with PHP/MariaDB already setup based on [n0nag0n/firefly](https://github.com/n0nag0n/firefly)
-
+4. Configurer la connexion
 ```bash
-cd cool-project-name
-vagrant up
+cp app/config/config_sample.php app/config/config.php
 ```
 
-After that, open `http://localhost:8000` in your browser.
-
-## Project Structure
-
-This skeleton is organized for clarity and maintainability, and is also structured to be easily navigable by AI coding assistants. The following layout is recommended:
-
+5. Lancer le serveur
+```bash
+php -S localhost:8000 -t public
 ```
-project-root/
-│
-├── app/                # Application-specific code
-│   ├── controllers/    # Route controllers (e.g., HomeController.php)
-│   ├── middlewares/    # Custom middleware classes/functions
-│   ├── models/         # Data models (if needed)
-│   ├── utils/          # Utility/helper functions
-│   ├── views/          # View templates (if using)
-│   └── commands/       # Custom CLI commands for Runway
-│
-├── public/             # Web root (index.php, assets, etc.)
-│
-├── config/             # Configuration files (database, app settings, routes)
-│
-├── vendor/             # Composer dependencies
-│
-├── tests/              # Unit and integration tests
-│
-├── composer.json       # Composer config
-│
-└── README.md           # Project overview
-```
-
-> _Predefined instructions for AI tools are included in this skeleton, making it easier for AI assistants to understand and help you with this structure._
-
-## Do it!
-That's it! Go build something flipping sweet!

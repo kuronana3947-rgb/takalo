@@ -1,12 +1,10 @@
 <?php
-/**
- * model.php — Layout principal
- * Variables attendues : $namePage, $data, $user
- */
+
 $namePage = $namePage ?? 'home';
 $data     = $data ?? [];
 $user     = $user ?? null;
 $isAdmin  = !empty($user['isAdmin']);
+$nonce    = Flight::app()->get('csp_nonce');
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -18,7 +16,6 @@ $isAdmin  = !empty($user['isAdmin']);
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
 <header class="header">
     <div class="header-left">
         <button class="menu-toggle" id="menuToggle">&#9776;</button>
@@ -26,12 +23,12 @@ $isAdmin  = !empty($user['isAdmin']);
     </div>
 
     <div class="header-right">
-        <!-- Bouton ajouter un objet -->
+
         <button class="btn btn-primary" id="btnAddObjet">
             <span class="icon">+</span> Ajouter un objet
         </button>
 
-        <!-- Notifications -->
+
         <div class="notif-wrapper" id="notifWrapper">
             <button class="btn-icon" id="btnNotif">
                 🔔
@@ -53,10 +50,9 @@ $isAdmin  = !empty($user['isAdmin']);
             </div>
         </div>
 
-        <!-- Profil -->
         <div class="profile-wrapper" id="profileWrapper">
             <button class="btn-icon" id="btnProfile">👤</button>
-            <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown" id="profileDropdown">
                 <p class="profile-email"><?= htmlspecialchars($user['email'] ?? '') ?></p>
                 <a href="/profil">Mon profil</a>
                 <a href="/logout" class="logout">Déconnexion</a>
@@ -65,7 +61,6 @@ $isAdmin  = !empty($user['isAdmin']);
     </div>
 </header>
 
-<!-- ===== SIDEBAR ===== -->
 <aside class="sidebar" id="sidebar">
     <nav class="sidebar-nav">
         <?php if ($isAdmin): ?>
@@ -88,8 +83,29 @@ $isAdmin  = !empty($user['isAdmin']);
     </nav>
 </aside>
 
-<!-- ===== CONTENU PRINCIPAL ===== -->
 <main class="main-content">
+    <?php
+        $successParam = $_GET['success'] ?? '';
+        $errorParam   = $_GET['error'] ?? '';
+        $messages = [
+            'objet_ajoute'    => '✅ Objet ajouté avec succès !',
+            'objet_supprime'  => '✅ Objet supprimé.',
+            'echange_propose' => '✅ Proposition d\'échange envoyée !',
+            'echange_accepte' => '✅ Échange accepté !',
+            'echange_refuse'  => '✅ Échange refusé.',
+        ];
+        $errorMessages = [
+            'champs_requis' => '❌ Veuillez remplir tous les champs obligatoires.',
+            'non_autorise'  => '❌ Action non autorisée.',
+        ];
+    ?>
+    <?php if ($successParam && isset($messages[$successParam])): ?>
+        <div class="alert alert-success"><?= $messages[$successParam] ?></div>
+    <?php endif; ?>
+    <?php if ($errorParam && isset($errorMessages[$errorParam])): ?>
+        <div class="alert alert-error"><?= $errorMessages[$errorParam] ?></div>
+    <?php endif; ?>
+
     <?php
         $viewFile = __DIR__ . '/' . $namePage . '.php';
         if (file_exists($viewFile)) {
@@ -100,7 +116,7 @@ $isAdmin  = !empty($user['isAdmin']);
     ?>
 </main>
 
-<!-- ===== MODAL AJOUT OBJET ===== -->
+
 <div class="modal-overlay" id="modalObjet">
     <div class="modal">
         <div class="modal-header">
@@ -135,7 +151,6 @@ $isAdmin  = !empty($user['isAdmin']);
                     </div>
                 </div>
 
-                <!-- Upload photos multiples -->
                 <div class="form-group">
                     <label>Photos (plusieurs possibles)</label>
                     <div class="photo-upload" id="photoUpload">
@@ -153,6 +168,6 @@ $isAdmin  = !empty($user['isAdmin']);
     </div>
 </div>
 
-<script src="/js/app.js"></script>
+<script src="/js/app.js" nonce="<?= $nonce ?>"></script>
 </body>
 </html>
