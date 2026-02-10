@@ -64,4 +64,13 @@ class Categories
         $stmt->execute([$id]);
         return $stmt->rowCount();
     }
+
+    public function countAll()
+    {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$row['total'];
+    }
 }

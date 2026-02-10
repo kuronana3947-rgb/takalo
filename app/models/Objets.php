@@ -94,4 +94,37 @@ class Objets
         $stmt->execute([$ownerId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function countAll()
+    {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$row['total'];
+    }
+    public function UpdateIdProprietaire($idObjet, $newOwnerId)
+    {
+        $sql = "UPDATE {$this->table} SET idProprietaire = ? WHERE {$this->pk} = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$newOwnerId, $idObjet]);
+        return $stmt->rowCount();
+    }
+    public function echangeOwnership($idObjet1, $idObjet2)
+    {
+        // Récupérer les objets
+        $objet1 = $this->getById($idObjet1);
+        $objet2 = $this->getById($idObjet2);
+
+        if (empty($objet1) || empty($objet2)) {
+            return false; 
+        }
+
+
+        $tempOwner = $objet1['idProprietaire'];
+        $this->UpdateIdProprietaire($idObjet1, $objet2['idProprietaire']);
+        $this->UpdateIdProprietaire($idObjet2, $tempOwner);
+
+        return true;
+    }
 }
